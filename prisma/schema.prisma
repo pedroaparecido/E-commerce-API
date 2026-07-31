@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 1. Categorias de Produtos
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  products  Product[]
+
+  @@map("categories")
+}
+
+// 2. Produtos Principais
+model Product {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  description      String         @db.Text
+  price            Decimal        @db.Decimal(10, 2)
+  promotionalPrice Decimal?       @map("promotional_price") @db.Decimal(10, 2)
+  active           Boolean        @default(true)
+  isExclusive      Boolean        @default(false) @map("is_exclusive")
+  
+  // Vínculo com Fornecedor de Dropshipping
+  supplierId       String?        @map("supplier_id")
+  supplierSku      String?        @map("supplier_sku") // Código no fornecedor (ex: AliExpress ID)
+  supplierPrice    Decimal?       @map("supplier_price") @db.Decimal(10, 2) // Custo original do item
+  
+  // Especificações técnicas flexíveis (JSONB)
+  attributes       Json?          @default("{}") 
+
+  categoryId       String         @map("category_id")
+  category         Category       @relation(fields: [categoryId], references: [id])
+
+  images           ProductImage[]
+  variants         ProductVariant[]
+  orderItems       OrderItem[]
+
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  // Índices para buscas ultrarrápidas no e-commerce
+  @@index([active, createdAt])
+  @@index([categoryId])
+  @@map("products")
+}
+
+// 3. Imagens do Produto
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String?  @map("alt_text")
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// 4. Variações do Produto (SKUs: Cor, Tamanho, Voltagem, etc.)
+model ProductVariant {
+  id            String   @id @default(cuid())
+  name          String   // Ex: "Preto / Tam 42" ou "Voltagem 110V"
+  sku           String   @unique
+  price         Decimal? @db.Decimal(10, 2) // Sobrescreve o preço principal se informado
+  stockQuantity Int      @default(0) @map("stock_quantity")
+  productId     String   @map("product_id")
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  orderItems    OrderItem[]
+
+  @@map("product_variants")
+}
+
+// 5. Pedidos do E-commerce
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING_SUPPLIER // Enviado para o fornecedor de dropshipping
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerName    String      @map("customer_name")
+  customerEmail   String      @map("customer_email")
+  customerCpf     String      @map("customer_cpf")
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  status          OrderStatus @default(PENDING)
+  
+  // Informações de entrega e rastreio do dropshipping
+  trackingCode    String?     @map("tracking_code")
+  supplierOrderId String?     @map("supplier_order_id")
+
+  items           OrderItem[]
+
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+// 6. Itens do Pedido
+model OrderItem {
+  id        String          @id @default(cuid())
+  quantity  Int
+  unitPrice Decimal         @map("unit_price") @db.Decimal(10, 2)
+  
+  orderId   String          @map("order_id")
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId String          @map("product_id")
+  product   Product         @relation(fields: [productId], references: [id])
+  
+  variantId String?         @map("variant_id")
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
