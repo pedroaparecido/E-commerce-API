@@ -1,4 +1,5 @@
 generator client {
+  previewFeatures = ["driverAdapters"]
   provider = "prisma-client-js"
 }
 
