@@ -2,7 +2,8 @@ import 'dotenv/config'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { adminRoutes } from './routes/admin.routes'
-import { productRoutes } from './routes/product.routes' // 👈 Importe a rota
+import { productRoutes } from './routes/product.routes'
+import { paymentRoutes } from './routes/payment.routes' // 👈 1. Importação adicionada
 import { InventoryCronJob } from './jobs/sync-inventory.cron'
 
 const app = Fastify({ logger: true })
@@ -13,7 +14,8 @@ app.get('/health', async () => ({ status: 'ok' }))
 
 // Registrar rotas da API
 app.register(adminRoutes)
-app.register(productRoutes) // 👈 Registre aqui
+app.register(productRoutes)
+app.register(paymentRoutes) // 👈 2. Rota registrada no Fastify
 
 const inventoryCron = new InventoryCronJob()
 inventoryCron.init()
