@@ -7,8 +7,12 @@ import fastifyCsrf from '@fastify/csrf-protection'
 import { paymentRoutes } from './routes/payment.routes'
 import { adminRoutes } from './routes/admin.routes'
 import { productRoutes } from './routes/product.routes'
+import { syncRoutes } from './routes/sync.routes' // Ajuste o caminho das suas rotas
 
 const app = Fastify({ logger: true })
+
+// Registra as rotas apontando para o prefixo /sync
+app.register(syncRoutes, { prefix: '/sync' })
 
 app.register(cors, { 
   origin: true,

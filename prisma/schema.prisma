@@ -23,6 +23,7 @@ model Category {
 // 2. Produtos Principais
 model Product {
   id               String         @id @default(cuid())
+  sku              String         @unique
   name             String
   slug             String         @unique
   description      String         @db.Text
