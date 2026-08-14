@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { DropshippingService } from './dropshipping.service'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../lib/prisma'
 
 // Moca a instância do Prisma para não bater no PostgreSQL real
 vi.mock('@/lib/prisma', () => ({

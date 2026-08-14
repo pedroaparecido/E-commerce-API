@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../lib/prisma'
 import { CJDropshippingService, CJProductResponse } from './cj-dropshipping.service'
 
 export interface ExternalSupplierProduct {

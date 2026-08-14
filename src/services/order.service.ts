@@ -1,5 +1,5 @@
 // src/services/order.service.ts
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../lib/prisma'
 
 interface OrderItemInput {
   variantId: string
