@@ -16,6 +16,7 @@ app.register(syncRoutes, { prefix: '/sync' })
 
 app.register(cors, { 
   origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   credentials: true // ⚠️ Importante para envio de cookies entre origens
 })
 
