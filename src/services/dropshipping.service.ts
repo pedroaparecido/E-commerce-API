@@ -227,6 +227,7 @@ export class DropshippingService {
       slug,
       description: supplierProduct.description,
       price: retailPrice,
+      sku: supplierProduct.sku,
       supplierPrice: costPrice,
       supplierSku: supplierProduct.sku,
       supplierId: supplierProduct.supplier_id,
