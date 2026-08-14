@@ -20,21 +20,24 @@ app.register(cors, {
   credentials: true // ⚠️ Importante para envio de cookies entre origens
 })
 
-// 1. Registra o gerenciador de cookies (necessário para o CSRF)
+// 1. Registra o gerenciador de cookies com um secret
 app.register(fastifyCookie, {
-  secret: process.env.COOKIE_SECRET || "sua-chave-secreta-muito-longa-aqui",
+  secret: process.env.COOKIE_SECRET || 'uma-chave-secreta-super-segura-32-chars',
 })
 
-// 2. Registra o plugin de proteção CSRF
+// 2. Registra a proteção CSRF
 app.register(fastifyCsrf, {
-  cookieKey: "_csrf",
-  cookieOpts: { 
-    signed: true, 
-    path: "/", 
-    sameSite: "lax", 
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production" // 👈 Ativa HTTPS em produção
+  cookieOpts: {
+    signed: true,
+    sameSite: 'none', // Necessário pois o Front (Vercel) e Back (Render) estão em domínios diferentes
+    secure: true,   // Necessário para HTTPS em produção
   },
+})
+
+// 3. Cria uma rota para o Front-end buscar o token CSRF
+app.get('/csrf-token', async (request, reply) => {
+  const token = await reply.generateCsrf()
+  return { csrfToken: token }
 })
 
 // Registrar rotas da API

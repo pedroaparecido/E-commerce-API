@@ -34,10 +34,6 @@ export async function paymentRoutes(app: FastifyInstance) {
             transaction_amount: Number(totalAmount),
             description: `Pedido na loja (${items?.length || 0} itens)`,
             payment_method_id: "pix",
-            payer: {
-              email: email || "cliente@email.com",
-              first_name: "Cliente",
-            },
             notification_url: process.env.WEBHOOK_URL!,
           },
         })
