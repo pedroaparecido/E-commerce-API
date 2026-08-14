@@ -5,6 +5,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
@@ -13,6 +14,6 @@
     "strict": true,
     "skipLibCheck": true,
   },
-  "include": ["src/**/*", "prisma.config.ts", "../e-commerce/src/store/useCartStore.tsx"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }
