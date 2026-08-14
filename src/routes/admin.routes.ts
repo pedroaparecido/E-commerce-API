@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { SyncController } from '@/controllers/sync.controller'
+import { SyncController } from '../controllers/sync.controller'
 
 const syncController = new SyncController()
 
