@@ -14,17 +14,11 @@ export async function paymentRoutes(app: FastifyInstance) {
   })
 
   // 2. Rota de checkout Pix (Protegida contra CSRF)
-  app.post(
-    "/checkout/pix",
-    {
-      onRequest: app.csrfProtection, // 👈 Middleware do Fastify que bloqueia requisições sem o token válido
-    },
-    async (request, reply) => {
+  app.post("/checkout/pix", async (request, reply) => {
       try {
-        const { items, totalAmount, email } = request.body as {
+        const { items, totalAmount } = request.body as {
           items: any[]
           totalAmount: number
-          email?: string
         }
 
         const payment = new Payment(client)
