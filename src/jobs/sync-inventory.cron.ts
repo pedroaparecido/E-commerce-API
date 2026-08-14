@@ -1,5 +1,5 @@
 import cron from 'node-cron'
-import { DropshippingService } from '@/services/dropshipping.service'
+import { DropshippingService } from '../services/dropshipping.service'
 
 export class InventoryCronJob {
   private dropshippingService: DropshippingService

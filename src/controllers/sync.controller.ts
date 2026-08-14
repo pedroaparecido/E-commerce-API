@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { DropshippingService } from '@/services/dropshipping.service'
+import { DropshippingService } from "../services/dropshipping.service"
 
 export interface SyncQuery {
   category?: string
