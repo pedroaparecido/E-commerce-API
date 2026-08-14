@@ -1,4 +1,4 @@
-// backend/src/server.ts
+import 'tsconfig-paths/register'
 import 'dotenv/config'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
