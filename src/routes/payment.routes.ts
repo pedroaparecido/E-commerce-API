@@ -10,7 +10,7 @@ export async function paymentRoutes(app: FastifyInstance) {
   // 1. Rota para o frontend obter o token CSRF válido
   app.get("/csrf-token", async (request, reply) => {
     const token = await reply.generateCsrf()
-    return reply.send({ csrfToken: token })
+    return { token }
   })
 
   // 2. Rota de checkout Pix (Protegida contra CSRF)
