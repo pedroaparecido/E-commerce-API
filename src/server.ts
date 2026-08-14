@@ -34,12 +34,6 @@ app.register(fastifyCsrf, {
   },
 })
 
-// 3. Cria uma rota para o Front-end buscar o token CSRF
-app.get('/csrf-token', async (request, reply) => {
-  const token = await reply.generateCsrf()
-  return { csrfToken: token }
-})
-
 // Registrar rotas da API
 app.register(adminRoutes)
 app.register(productRoutes)
