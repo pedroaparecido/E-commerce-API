@@ -16,10 +16,10 @@ export async function productRoutes(app: FastifyInstance) {
     })
 
     // Mapeia o retorno do banco para a interface `Product` esperada pelo seu Frontend
-    const formattedProducts = products.map((prod) => {
+    const formattedProducts = products.map((prod: any) => {
       // Calcula o estoque total somando as variações (SKUs)
       const totalStock = prod.variants.reduce(
-        (acc, variant) => acc + variant.stockQuantity,
+        (acc: any, variant: any) => acc + variant.stockQuantity,
         0
       )
 

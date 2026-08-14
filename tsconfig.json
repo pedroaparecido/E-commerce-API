@@ -11,5 +11,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "prisma.config.ts", "../e-commerce/src/store/useCartStore.tsx"]
+  "include": ["src/**/*", "prisma.config.ts", "../e-commerce/src/store/useCartStore.tsx"],
+  "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

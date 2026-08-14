@@ -195,75 +195,79 @@ export class DropshippingService {
   }
 
   async syncSingleProduct(supplierProduct: ExternalSupplierProduct) {
-    const costPrice = this.parsePrice(supplierProduct.cost_price)
-    const retailPrice = Number((costPrice * this.defaultMarkup).toFixed(2))
-    const title = supplierProduct.title
-    const slug = this.generateSlug(title, supplierProduct.supplier_id)
+  const costPrice = this.parsePrice(supplierProduct.cost_price)
+  const retailPrice = Number((costPrice * this.defaultMarkup).toFixed(2))
+  const title = supplierProduct.title
+  const slug = this.generateSlug(title, supplierProduct.supplier_id)
 
-    const category = await prisma.category.upsert({
-      where: { slug: supplierProduct.category_slug },
-      update: { name: supplierProduct.category_name },
-      create: {
-        name: supplierProduct.category_name,
-        slug: supplierProduct.category_slug,
-      },
+  // 1. Categoria
+  const category = await prisma.category.upsert({
+    where: { slug: supplierProduct.category_slug },
+    update: { name: supplierProduct.category_name },
+    create: {
+      name: supplierProduct.category_name,
+      slug: supplierProduct.category_slug,
+    },
+  })
+
+  // 2. Produto Pai
+  const product = await prisma.product.upsert({
+    where: { slug },
+    update: {
+      name: title,
+      description: supplierProduct.description,
+      price: retailPrice,
+      supplierPrice: costPrice,
+      supplierSku: supplierProduct.sku,
+      supplierId: supplierProduct.supplier_id,
+      category: { connect: { id: category.id } },
+    },
+    create: {
+      name: title,
+      slug,
+      description: supplierProduct.description,
+      price: retailPrice,
+      supplierPrice: costPrice,
+      supplierSku: supplierProduct.sku,
+      supplierId: supplierProduct.supplier_id,
+      category: { connect: { id: category.id } },
+    },
+  })
+
+  // 3. Imagens
+  await prisma.productImage.deleteMany({ where: { productId: product.id } })
+  if (supplierProduct.images.length > 0) {
+    await prisma.productImage.createMany({
+      data: supplierProduct.images.map((url) => ({
+        url,
+        productId: product.id,
+        altText: title,
+      })),
     })
-
-    const product = await prisma.product.upsert({
-      where: { slug },
-      update: {
-        name: title,
-        description: supplierProduct.description,
-        price: retailPrice,
-        supplierPrice: costPrice,
-        supplierSku: supplierProduct.sku,
-        supplierId: supplierProduct.supplier_id,
-        category: { connect: { id: category.id } },
-      },
-      create: {
-        name: title,
-        slug,
-        description: supplierProduct.description,
-        price: retailPrice,
-        supplierPrice: costPrice,
-        supplierSku: supplierProduct.sku,
-        supplierId: supplierProduct.supplier_id,
-        category: { connect: { id: category.id } },
-      },
-    })
-
-    await prisma.productImage.deleteMany({ where: { productId: product.id } })
-    if (supplierProduct.images.length > 0) {
-      await prisma.productImage.createMany({
-        data: supplierProduct.images.map((url) => ({
-          url,
-          productId: product.id,
-          altText: title,
-        })),
-      })
-    }
-
-    for (const variant of supplierProduct.variants) {
-      const variantCost = this.parsePrice(variant.cost_price)
-      const variantRetailPrice = Number((variantCost * this.defaultMarkup).toFixed(2))
-
-      await prisma.productVariant.upsert({
-        where: { sku: variant.sku },
-        update: {
-          name: variant.name,
-          price: variantRetailPrice,
-          stockQuantity: variant.stock > 0 ? variant.stock : 100,
-        },
-        create: {
-          sku: variant.sku,
-          name: variant.name,
-          price: variantRetailPrice,
-          stockQuantity: variant.stock > 0 ? variant.stock : 100,
-          product: { connect: { id: product.id } },
-        },
-      })
-    }
-
-    return product
   }
+
+  // 4. Criação/Atualização das Variantes (Aqui elas ganham o ID do banco)
+  for (const variant of supplierProduct.variants) {
+    const variantCost = this.parsePrice(variant.cost_price)
+    const variantRetailPrice = Number((variantCost * this.defaultMarkup).toFixed(2))
+
+    await prisma.productVariant.upsert({
+      where: { sku: variant.sku },
+      update: {
+        name: variant.name,
+        price: variantRetailPrice,
+        stockQuantity: variant.stock > 0 ? variant.stock : 100,
+      },
+      create: {
+        sku: variant.sku,
+        name: variant.name,
+        price: variantRetailPrice,
+        stockQuantity: variant.stock > 0 ? variant.stock : 100,
+        product: { connect: { id: product.id } },
+      },
+    })
+  }
+
+  return product
+}
 }
